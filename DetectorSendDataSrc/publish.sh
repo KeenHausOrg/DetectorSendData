@@ -1,0 +1,1 @@
+scp DetectorSendData.py pi@192.168.86.45:src/DetectorSendData
