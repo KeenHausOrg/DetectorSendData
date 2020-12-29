@@ -1,1 +1,1 @@
-scp DetectorSendData.py pi@192.168.86.45:src/DetectorSendData
+scp appSettings.json ConfigManager.py DetectorSendData.py SMSService.py pi@192.168.86.45:src/DetectorSendData

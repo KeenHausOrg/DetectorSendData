@@ -5,7 +5,7 @@ import serial
 import requests
 import json
 import numpy as np
-import ConfigManager
+from SMSService import SMSService
 
 # "constants"
 _picturePath = '/home/pi/Pictures/'
@@ -21,12 +21,13 @@ _twilioSecret = 'roThfIodEKi256ngmSdgOlBJ43s8Dgvx'
 # Main func
 def main():
   print("Starting program ...")
-  configs = ConfigManager()
+  smsService = SMSService()
   sleep(1)
   moisturePcnt = ReadSerial()
   phrase = GetPhrase(moisturePcnt)
   pictureName = TakePicture()
   imgLink = UploadPicture(pictureName)
+  smsService.SendMMS(phrase, imgLink)
 
   print("moisture: ", moisturePcnt)
   print("phrase: ", phrase)
