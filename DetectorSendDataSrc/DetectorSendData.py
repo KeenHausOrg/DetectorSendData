@@ -5,25 +5,34 @@ import serial
 import requests
 import json
 import numpy as np
+import ConfigManager
 
 # "constants"
 _picturePath = '/home/pi/Pictures/'
 
+# imgur credentials
+_imgurBearerToken = 'Bearer 5eeae49394cd929e299785c8805bd168fc675280'
+_imgurAPIUploadUrl = 'https://api.imgur.com/3/upload'
+
+#twilio credentials
+_twilioSID = 'SK927f591d6244a6b148395d88cff76fd3'
+_twilioSecret = 'roThfIodEKi256ngmSdgOlBJ43s8Dgvx'
+
 # Main func
 def main():
   print("Starting program ...")
+  configs = ConfigManager()
   sleep(1)
   moisturePcnt = ReadSerial()
   phrase = GetPhrase(moisturePcnt)
   pictureName = TakePicture()
+  imgLink = UploadPicture(pictureName)
 
   print("moisture: ", moisturePcnt)
   print("phrase: ", phrase)
   print("pic: ", pictureName)
+  print("link: ", imgLink)
 
-  #UploadPicture(pictureName)
-
-  # ---- disabled during debug of img uploading ----
 def ReadSerial():
   ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=5)
   sample = ser.read(200) # pull 200 bytes off serial
@@ -36,24 +45,24 @@ def ReadSerial():
   }
 
   for reading in sample_list:
-    print("working on:" + reading)
+    # print("working on:" + reading)
     if '\r' not in reading:
       break
     reading = reading.strip()
     reading_kv = reading.split(':')
 
-    print("kv var:")
-    print(reading_kv)
+    # print("kv var:")
+    # print(reading_kv)
 
     if len(reading_kv) == 2:
       key = reading_kv[0]
       val = reading_kv[1]
 
       if key == "Percent":
-        print("val to be inserted into array: ", int(val))
+        # print("val to be inserted into array: ", int(val))
         readings["Percent"].append(int(val))
 
-  print("pcnt array : ", readings["Percent"])
+  # print("pcnt array : ", readings["Percent"])
   if(len(readings["Percent"]) > 0):
     average = np.average(readings["Percent"])
     return average
@@ -85,15 +94,17 @@ def GetPhrase(moisturePcnt):
 
 def UploadPicture(pictureName):
 # request building
+  print("Attempting to upload picture ...")
   multipart_form_data = {
-      'image': ('aviation.jpg', open(r"C:/Users/cc/Desktop/aviation.jpg", "rb")),
+      'image': (pictureName, open(_picturePath+pictureName, "rb")),
       'type': (None, 'file'),
-      'name': (None, 'aviation.jpg'),
-      'title': (None, 'title desc')
+      'name': (None, pictureName),
+      'title': (None, 'Automatic picture upload')
   }
-  headers = {'Authorization': 'Bearer 5eeae49394cd929e299785c8805bd168fc675280'}
+  headers = {'Authorization': _imgurBearerToken}
 
-  response = requests.post('https://api.imgur.com/3/upload', files=multipart_form_data,  headers=headers)
+  response = requests.post(_imgurAPIUploadUrl, files=multipart_form_data,  headers=headers)
+  print("Request response:", response.headers)
   print(response.content)
 
   # deal with the response
@@ -104,6 +115,7 @@ def UploadPicture(pictureName):
     imgurLink = responseObj['data']['link']
   else:
     imgurLink = "error"
+  return imgurLink
 
 if __name__ == '__main__':
   main()
