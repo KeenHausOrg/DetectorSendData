@@ -5,6 +5,7 @@ import serial
 import requests
 import json
 import numpy as np
+import os
 from SMSService import SMSService
 
 # "constants"
@@ -33,6 +34,11 @@ def main():
   print("phrase: ", phrase)
   print("pic: ", pictureName)
   print("link: ", imgLink)
+
+  if (len(imgLink) > 3 and imgLink!='error'):
+    if (os.path.exists(_picturePath+pictureName)):
+      os.remove(_picturePath+pictureName)
+
 
 def ReadSerial():
   ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=5)
@@ -71,15 +77,23 @@ def ReadSerial():
     return -1
 
 def TakePicture():
-  camera = PiCamera()
-  camera.start_preview()
-  sleep(4)
-  now = datetime.now() # current date and time
-  date_time = now.strftime("%m%d%Y_%H%M%S")
-  fileName = 'plantcam_'+date_time+'.jpg'
-  camera.capture(_picturePath+fileName)
-  camera.stop_preview()
-  return fileName
+  fileName="error"
+  camera = PiCamera(resolution=(1280,720))
+  try:
+    camera.rotation = 90
+    camera.preview_fullscreen=False
+    camera.start_preview()
+    
+    sleep(4)
+    now = datetime.now() # current date and time
+    date_time = now.strftime("%m%d%Y_%H%M%S")
+    fileName = 'plantcam_'+date_time+'.jpg'
+    camera.capture(_picturePath+fileName, format='jpeg', use_video_port=False, resize=None, bayer=False)
+    camera.stop_preview()
+  finally:
+    camera.close()
+    return fileName
+
 
 def GetPhrase(moisturePcnt):
   errorPhrase = "Moisture reading is invalid."
