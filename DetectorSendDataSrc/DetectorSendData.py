@@ -7,22 +7,16 @@ import json
 import numpy as np
 import os
 from SMSService import SMSService
+from ConfigManager import ConfigManager 
 
 # "constants"
 _picturePath = '/home/pi/Pictures/'
-
-# imgur credentials
-_imgurBearerToken = 'Bearer 5eeae49394cd929e299785c8805bd168fc675280'
-_imgurAPIUploadUrl = 'https://api.imgur.com/3/upload'
-
-#twilio credentials
-_twilioSID = 'SK927f591d6244a6b148395d88cff76fd3'
-_twilioSecret = 'roThfIodEKi256ngmSdgOlBJ43s8Dgvx'
-
+_configs = ConfigManager()
 # Main func
 def main():
   print("Starting program ...")
   smsService = SMSService()
+  
   sleep(1)
   moisturePcnt = ReadSerial()
   phrase = GetPhrase(moisturePcnt)
@@ -52,24 +46,18 @@ def ReadSerial():
   }
 
   for reading in sample_list:
-    # print("working on:" + reading)
     if '\r' not in reading:
       break
     reading = reading.strip()
     reading_kv = reading.split(':')
-
-    # print("kv var:")
-    # print(reading_kv)
 
     if len(reading_kv) == 2:
       key = reading_kv[0]
       val = reading_kv[1]
 
       if key == "Percent":
-        # print("val to be inserted into array: ", int(val))
         readings["Percent"].append(int(val))
 
-  # print("pcnt array : ", readings["Percent"])
   if(len(readings["Percent"]) > 0):
     average = np.average(readings["Percent"])
     return average
@@ -83,7 +71,7 @@ def TakePicture():
     camera.rotation = 90
     camera.preview_fullscreen=False
     camera.start_preview()
-    
+
     sleep(4)
     now = datetime.now() # current date and time
     date_time = now.strftime("%m%d%Y_%H%M%S")
@@ -116,9 +104,9 @@ def UploadPicture(pictureName):
       'name': (None, pictureName),
       'title': (None, 'Automatic picture upload')
   }
-  headers = {'Authorization': _imgurBearerToken}
+  headers = {'Authorization': _configs.IMGUR_BEARERTOKEN}
 
-  response = requests.post(_imgurAPIUploadUrl, files=multipart_form_data,  headers=headers)
+  response = requests.post(_configs.IMGUR_APIURL, files=multipart_form_data,  headers=headers)
   print("Request response:", response.headers)
   print(response.content)
 
