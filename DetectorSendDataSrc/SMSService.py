@@ -12,8 +12,8 @@ class SMSService:
     message = client.messages \
         .create(
             body=message,
-            from_='+18563419116',
-            to='+14692545597',
+            from_=configs.TWILIO_SENDERNUMBER,
+            to=configs.TWILIO_RECEIVERNUMBER,
             media_url=[imageLink],
         )
     print(message, imageLink)

@@ -17,21 +17,31 @@ def main():
   print("Starting program ...")
   smsService = SMSService()
   
-  sleep(1)
-  moisturePcnt = ReadSerial()
-  phrase = GetPhrase(moisturePcnt)
-  pictureName = TakePicture()
-  imgLink = UploadPicture(pictureName)
-  smsService.SendMMS(phrase, imgLink)
+  while(1):
+    currTime = datetime.now()
+    sleep(1)
 
-  print("moisture: ", moisturePcnt)
-  print("phrase: ", phrase)
-  print("pic: ", pictureName)
-  print("link: ", imgLink)
+    if(currTime.hour == 16):
+      moisturePcnt = ReadSerial()
+      phrase = GetPhrase(moisturePcnt)
+      pictureName = TakePicture()
+      imgLink = UploadPicture(pictureName)
+      smsService.SendMMS(phrase, imgLink)
 
-  if (len(imgLink) > 3 and imgLink!='error'):
-    if (os.path.exists(_picturePath+pictureName)):
-      os.remove(_picturePath+pictureName)
+      print("moisture: ", moisturePcnt)
+      print("phrase: ", phrase)
+      print("pic: ", pictureName)
+      print("link: ", imgLink)
+
+      if (len(imgLink) > 3 and imgLink!='error'):
+        if (os.path.exists(_picturePath+pictureName)):
+          os.remove(_picturePath+pictureName)
+      
+      sleep(3599)
+    
+    else:
+      print("Curr hour is ",currTime.hour,". Sleeping for another")
+      sleep(3599)
 
 
 def ReadSerial():
