@@ -94,9 +94,9 @@ def TakePicture():
 
 
 def GetPhrase(moisturePcnt):
-  errorPhrase = "Moisture reading is invalid."
-  wetPhrase = "Soil is wet."
-  dryPhrase = "Soild is dry."
+  errorPhrase = "Moisture reading is invalid (" + moisturePcnt + "%)"
+  wetPhrase = "Soil is wet (" + moisturePcnt + "%)."
+  dryPhrase = "Soild is dry (" + moisturePcnt + "%)."
   
   if(moisturePcnt < 0):
     return errorPhrase
