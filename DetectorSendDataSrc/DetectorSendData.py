@@ -40,7 +40,7 @@ def main():
       sleep(3599)
     
     else:
-      print("Curr hour is ",currTime.hour,". Sleeping for another")
+      print("Hour: ",currTime.hour,". Zz.")
       sleep(3599)
 
 
@@ -94,9 +94,9 @@ def TakePicture():
 
 
 def GetPhrase(moisturePcnt):
-  errorPhrase = "Moisture reading is invalid (" + moisturePcnt + "%)"
-  wetPhrase = "Soil is wet (" + moisturePcnt + "%)."
-  dryPhrase = "Soild is dry (" + moisturePcnt + "%)."
+  errorPhrase = "Moisture reading is invalid (" + str(moisturePcnt) + "%)"
+  wetPhrase = "Soil is wet (" + str(moisturePcnt) + "%)."
+  dryPhrase = "Soild is dry (" + str(moisturePcnt) + "%)."
   
   if(moisturePcnt < 0):
     return errorPhrase
